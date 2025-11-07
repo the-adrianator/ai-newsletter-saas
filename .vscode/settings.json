@@ -7,12 +7,7 @@
     "typescript": "javascript",
     "typescriptreact": "javascript"
   },
-  "tailwindCSS.classAttributes": [
-    "class",
-    "className",
-    "classList",
-    "ngClass"
-  ],
+  "tailwindCSS.classAttributes": ["class", "className", "classList", "ngClass"],
   "css.validate": false,
   "css.customData": [],
   "css.lint.unknownAtRules": "ignore",
@@ -29,4 +24,3 @@
     "strings": true
   }
 }
-
