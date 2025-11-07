@@ -1,9 +1,25 @@
-import Image from "next/image";
+import { SignedIn, UserButton } from "@clerk/nextjs";
+import { Hero } from "@/components/landing/Hero";
+import { Features } from "@/components/landing/Features";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Pricing } from "@/components/landing/Pricing";
+import { CTA } from "@/components/landing/CTA";
 
 export default function Home() {
   return (
-    <div>
-      <h1>Hello World</h1>
+    <div className="min-h-screen bg-white dark:bg-black">
+      <Hero />
+      <Features />
+      <HowItWorks />
+
+      <SignedIn>
+        <div className="fixed top-4 right-4">
+          <UserButton />
+        </div>
+      </SignedIn>
+
+      <Pricing />
+      <CTA />
     </div>
   );
 }
