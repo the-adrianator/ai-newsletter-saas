@@ -86,7 +86,7 @@ model RssArticle {
   summary String? // Article summary/description
   pubDate DateTime
   author String?
-  category String[] // Article of category tags
+  categories String[] // Article category tags
   imageUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
