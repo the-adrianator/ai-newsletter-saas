@@ -11,7 +11,12 @@ import {
 
 export async function NewsletterGenerator() {
   const { userId } = await auth();
-  const user = await upsertUserFromClerk(userId!);
+  
+  if (!userId) {
+    redirect("/sign-in");
+  }
+  
+  const user = await upsertUserFromClerk(userId);
   const feeds = await getRssFeedsByUserId(user.id);
 
   if (feeds.length === 0) {
