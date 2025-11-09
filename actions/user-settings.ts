@@ -117,7 +117,10 @@ export async function upsertUserSettings(
           companyName: data.companyName,
           industry: data.industry,
           disclaimerText: data.disclaimerText,
-          defaultTags: data.defaultTags || [],
+          defaultTags:
+            data.defaultTags !== undefined
+              ? data.defaultTags
+              : existingSettings.defaultTags ?? [],
           customFooter: data.customFooter,
           senderName: data.senderName,
           senderEmail: data.senderEmail,
