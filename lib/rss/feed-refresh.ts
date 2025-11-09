@@ -152,6 +152,7 @@ export async function prepareFeedsAndArticles(params: PrepareFeedsParams) {
     params.startDate,
     params.endDate,
     ARTICLE_LIMIT,
+		params.userId,
   );
 
   // Ensure we have articles to work with

@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       new Date(startDate),
       new Date(endDate),
       100, // Same limit as generation
+      user.id,
     );
 
     return Response.json({

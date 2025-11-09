@@ -103,15 +103,33 @@ export async function getArticlesByFeedsAndDateRange(
   startDate: Date,
   endDate: Date,
   limit = 100,
+	userId?: string,
 ) {
   return wrapDatabaseOperation(async () => {
+    const scopedFeedIds =
+      userId != null
+       ? await prisma.rssFeed
+            .findMany({
+              where: {
+                id: { in: feedIds },
+                userId,
+              },
+              select: { id: true },
+            })
+            .then((rows) => rows.map((row) => row.id))
+        : feedIds;
+
+    if (userId && scopedFeedIds.length === 0) {
+      throw new Error("Unauthorized feed selection");
+    }
+
     const articles = await prisma.rssArticle.findMany({
       where: {
         OR: [
-          { feedId: { in: feedIds } },
+          { feedId: { in: scopedFeedIds } },
           {
             sourceFeedIds: {
-              hasSome: feedIds,
+              hasSome: scopedFeedIds,
             },
           },
         ],
