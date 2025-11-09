@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getArticlesByFeedsAndDateRange } from "@/actions/rss-article";
 import { validateFeedOwnership } from "@/actions/rss-feed";
 import { getCurrentUser } from "@/lib/auth/helpers";
@@ -21,14 +21,14 @@ export async function POST(req: NextRequest) {
 
     // Validate required parameters
     if (!feedIds || !Array.isArray(feedIds) || feedIds.length === 0) {
-      return Response.json(
+      return NextResponse.json(
         { error: "feedIds is required and must be a non-empty array" },
         { status: 400 },
       );
     }
 
     if (!startDate || !endDate) {
-      return Response.json(
+      return NextResponse.json(
         { error: "startDate and endDate are required" },
         { status: 400 },
       );
@@ -39,14 +39,14 @@ export async function POST(req: NextRequest) {
     const parsedEndDate = new Date(endDate);
 
     if (Number.isNaN(parsedStartDate.getTime())) {
-      return Response.json(
+      return NextResponse.json(
         { error: "startDate is not a valid date" },
         { status: 400 },
       );
     }
 
     if (Number.isNaN(parsedEndDate.getTime())) {
-      return Response.json(
+      return NextResponse.json(
         { error: "endDate is not a valid date" },
         { status: 400 },
       );
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       user.id,
     );
 
-    return Response.json({
+    return NextResponse.json({
       feedsToRefresh: feedsToRefresh.length,
       articlesFound: articles.length,
     });
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    return Response.json(
+    return NextResponse.json(
       { error: `Failed to prepare newsletter: ${errorMessage}` },
       { status: 500 },
     );
