@@ -35,7 +35,19 @@ export default async function SettingsPage() {
   }
 
   const isPro = await has({ plan: "pro" });
-  const settings = isPro ? await getCurrentUserSettings() : null;
+
+  // Fetch settings with error handling
+  let settings = null;
+  let settingsError = false;
+
+  if (isPro) {
+    try {
+      settings = await getCurrentUserSettings();
+    } catch (error) {
+      settingsError = true;
+      console.error("Failed to load user settings:", error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-950">
@@ -114,8 +126,23 @@ export default async function SettingsPage() {
           </Card>
         )}
 
+        {/* Error Loading Settings */}
+        {isPro && settingsError && (
+          <Card className="border-2 border-red-600 dark:border-red-500 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+            <CardHeader>
+              <CardTitle className="text-2xl text-red-600 dark:text-red-400">
+                Error Loading Settings
+              </CardTitle>
+              <CardDescription className="text-base">
+                We encountered an error while loading your settings. Please try
+                refreshing the page or contact support if the problem persists.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        )}
+
         {/* Settings Form */}
-        {isPro && <SettingsForm initialSettings={settings} />}
+        {isPro && !settingsError && <SettingsForm initialSettings={settings} />}
       </div>
     </div>
   );
