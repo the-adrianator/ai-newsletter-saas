@@ -1,0 +1,89 @@
+import type { NextRequest } from "next/server";
+import { getArticlesByFeedsAndDateRange } from "@/actions/rss-article";
+import { validateFeedOwnership } from "@/actions/rss-feed";
+import { getCurrentUser } from "@/lib/auth/helpers";
+import { getFeedsToRefresh } from "@/lib/rss/feed-refresh";
+
+export const maxDuration = 60;
+
+/**
+ * POST /api/newsletter/prepare
+ *
+ * Quick metadata endpoint to check feeds and articles before generation.
+ * Returns information for user feedback (toasts) without starting AI generation.
+ *
+ * @returns Metadata about feeds and articles to be used
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { feedIds, startDate, endDate } = body;
+
+    // Validate required parameters
+    if (!feedIds || !Array.isArray(feedIds) || feedIds.length === 0) {
+      return Response.json(
+        { error: "feedIds is required and must be a non-empty array" },
+        { status: 400 },
+      );
+    }
+
+    if (!startDate || !endDate) {
+      return Response.json(
+        { error: "startDate and endDate are required" },
+        { status: 400 },
+      );
+    }
+
+    // Validate date strings can be parsed into valid Date objects
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
+
+    if (Number.isNaN(parsedStartDate.getTime())) {
+      return Response.json(
+        { error: "startDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
+    if (Number.isNaN(parsedEndDate.getTime())) {
+      return Response.json(
+        { error: "endDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
+    // Verify user authentication
+    const user = await getCurrentUser();
+
+    // Validate that all feed IDs belong to the user
+    const validatedFeedIds = await validateFeedOwnership(feedIds, user.id);
+
+    // Check which feeds need refreshing
+    const feedsToRefresh = await getFeedsToRefresh(validatedFeedIds, user.id);
+
+    // Get article count without fetching full content
+    // Use validated feed IDs to ensure we only get articles from user's feeds
+    const articles = await getArticlesByFeedsAndDateRange(
+      validatedFeedIds,
+      parsedStartDate,
+      parsedEndDate,
+      100, // Same limit as generation
+      user.id,
+    );
+
+    return Response.json({
+      feedsToRefresh: feedsToRefresh.length,
+      articlesFound: articles.length,
+    });
+  } catch (error) {
+    console.error("Error in prepare:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    return Response.json(
+      { error: `Failed to prepare newsletter: ${errorMessage}` },
+      { status: 500 },
+    );
+  }
+}
