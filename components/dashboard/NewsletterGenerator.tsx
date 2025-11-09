@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { getRssFeedsByUserId } from "@/actions/rss-feed";
 import { upsertUserFromClerk } from "@/actions/user";
-import { NewsletterForm } from "@/components/dashboard/NewsLetterForm";
+import { NewsletterForm } from "@/components/dashboard/NewsletterForm";
 import {
   Card,
   CardDescription,

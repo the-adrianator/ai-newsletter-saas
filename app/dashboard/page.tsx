@@ -6,7 +6,7 @@ import { RssFeedManager } from "@/components/dashboard/RSSFeedManager";
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-950">
-      <div className="container mx-auto px-6 lg:px-8 space-y-12">
+      <div className="container mx-auto px-6 py-12 lg:px-8 space-y-12">
         {/* Page Header */}
         <PageHeader
           icon={Home}
