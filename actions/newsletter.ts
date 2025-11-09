@@ -1,7 +1,80 @@
 "use server";
 
+import type { Newsletter } from "@prisma/client";
 import { wrapDatabaseOperation } from "@/lib/database/error-handler";
 import { prisma } from "@/lib/prisma";
+
+// ============================================
+// TYPES FOR LEGACY DATA HANDLING
+// ============================================
+
+/**
+ * Legacy newsletter data that may contain typo field names from older schema versions
+ * This interface represents the union of current and legacy field structures
+ */
+interface NewsletterWithLegacyFields {
+  startDate?: Date | string; // Current field name
+  starteDate?: Date | string; // Legacy typo of "startDate"
+  feedsUsed?: string[]; // Current field name
+  feedUsed?: string[]; // Legacy typo of "feedsUsed"
+}
+
+/**
+ * Normalized newsletter with corrected field names
+ */
+type NormalizedNewsletter = Omit<Newsletter, "startDate" | "feedsUsed"> & {
+  startDate: Date | string | null;
+  feedsUsed: string[];
+};
+
+/**
+ * Type guard to check if an object has legacy fields
+ *
+ * @param obj - Any object to check
+ * @returns True if object has legacy newsletter fields
+ */
+function hasLegacyFields(obj: unknown): obj is NewsletterWithLegacyFields {
+  return (
+    obj !== null &&
+    typeof obj === "object" &&
+    ("startDate" in obj ||
+      "starteDate" in obj ||
+      "feedsUsed" in obj ||
+      "feedUsed" in obj)
+  );
+}
+
+/**
+ * Normalizes newsletter data by handling legacy field names
+ *
+ * This function safely reads from both current and legacy field names,
+ * providing proper fallbacks for backwards compatibility. It uses
+ * optional chaining and nullish coalescing to avoid unsafe type casts.
+ *
+ * @param raw - Newsletter data from Prisma that may contain legacy fields
+ * @returns Normalized newsletter with correct field names and proper defaults
+ */
+function normalizeNewsletterFields(raw: Newsletter): NormalizedNewsletter {
+  // Cast to unknown first, then use type guard for safe narrowing
+  const possiblyLegacy = raw as unknown;
+
+  let startDate: Date | string | null = null;
+  let feedsUsed: string[] = [];
+
+  if (hasLegacyFields(possiblyLegacy)) {
+    // Handle startDate: prefer current field, fall back to legacy typo, then null
+    startDate = possiblyLegacy.startDate ?? possiblyLegacy.starteDate ?? null;
+
+    // Handle feedsUsed: prefer current field, fall back to legacy typo, then empty array
+    feedsUsed = possiblyLegacy.feedsUsed ?? possiblyLegacy.feedUsed ?? [];
+  }
+
+  return {
+    ...raw,
+    startDate,
+    feedsUsed,
+  };
+}
 
 // ============================================
 // NEWSLETTER ACTIONS
@@ -64,7 +137,7 @@ export async function getNewslettersByUserId(
   },
 ) {
   return wrapDatabaseOperation(async () => {
-    return await prisma.newsletter.findMany({
+    const newsletters = await prisma.newsletter.findMany({
       where: {
         userId,
       },
@@ -74,6 +147,11 @@ export async function getNewslettersByUserId(
       take: options?.limit,
       skip: options?.skip,
     });
+
+    // Normalize field names to handle legacy data with typos
+    return newsletters.map((newsletter) =>
+      normalizeNewsletterFields(newsletter),
+    );
   }, "fetch newsletters by user");
 }
 
@@ -105,7 +183,8 @@ export async function getNewsletterById(id: string, userId: string) {
       throw new Error("Unauthorized: Newsletter does not belong to user");
     }
 
-    return newsletter;
+    // Normalize field names to handle legacy data with typos
+    return normalizeNewsletterFields(newsletter);
   }, "fetch newsletter by ID");
 }
 
