@@ -34,7 +34,23 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify user authentication
-    await getCurrentUser();
+    const user = await getCurrentUser();
+    
+    // Verify user owns the requested feeds
+    const userFeeds = await prisma.rssFeed.findMany({
+      where: {
+        id: { in: feedIds },
+        userId: user.id,
+      },
+      select: { id: true },
+    });
+    
+    if (userFeeds.length !== feedIds.length) {
+      return Response.json(
+        { error: "Access denied to one or more feeds" },
+        { status: 403 },
+      );
+    }
 
     // Check which feeds need refreshing
     const feedsToRefresh = await getFeedsToRefresh(feedIds);
