@@ -55,8 +55,9 @@ export async function POST(req: NextRequest) {
     const user = await getCurrentUser();
     const settings = await getUserSettingsByUserId(user.id);
 
-    // Fetch and prepare articles
+    // Fetch and prepare articles with ownership validation
     const articles = await prepareFeedsAndArticles({
+      userId: user.id,
       feedIds,
       startDate: new Date(startDate),
       endDate: new Date(endDate),

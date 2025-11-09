@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getArticlesByFeedsAndDateRange } from "@/actions/rss-article";
+import { validateFeedOwnership } from "@/actions/rss-feed";
 import { getCurrentUser } from "@/lib/auth/helpers";
 import { getFeedsToRefresh } from "@/lib/rss/feed-refresh";
 
@@ -34,14 +35,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify user authentication
-    await getCurrentUser();
+    const user = await getCurrentUser();
+
+    // Validate that all feed IDs belong to the user
+    const validatedFeedIds = await validateFeedOwnership(feedIds, user.id);
 
     // Check which feeds need refreshing
-    const feedsToRefresh = await getFeedsToRefresh(feedIds);
+    const feedsToRefresh = await getFeedsToRefresh(validatedFeedIds, user.id);
 
     // Get article count without fetching full content
+    // Use validated feed IDs to ensure we only get articles from user's feeds
     const articles = await getArticlesByFeedsAndDateRange(
-      feedIds,
+      validatedFeedIds,
       new Date(startDate),
       new Date(endDate),
       100, // Same limit as generation

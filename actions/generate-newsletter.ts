@@ -58,7 +58,13 @@ export async function generateNewsletterStream(params: {
   const settings = await getUserSettingsByUserId(user.id);
 
   // Fetch and refresh articles from RSS feeds
-  const articles = await prepareFeedsAndArticles(params);
+  // Feed ownership is validated inside prepareFeedsAndArticles
+  const articles = await prepareFeedsAndArticles({
+    userId: user.id,
+    feedIds: params.feedIds,
+    startDate: params.startDate,
+    endDate: params.endDate,
+  });
 
   // Build the AI prompt with articles and settings
   const articleSummaries = buildArticleSummaries(articles);

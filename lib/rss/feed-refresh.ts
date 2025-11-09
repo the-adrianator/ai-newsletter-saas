@@ -1,4 +1,5 @@
 import { getArticlesByFeedsAndDateRange } from "@/actions/rss-article";
+import { validateFeedOwnership } from "@/actions/rss-feed";
 import { fetchAndStoreFeed } from "@/actions/rss-fetch";
 import { prisma } from "@/lib/prisma";
 import type { PrepareFeedsParams } from "@/lib/rss/types";
@@ -35,16 +36,25 @@ export const ARTICLE_LIMIT = 100;
  * - Keeps data reasonably fresh for everyone
  *
  * @param feedIds - Array of feed IDs to check
+ * @param userId - User ID to validate feed ownership
  * @returns Array of feed IDs that need refreshing
+ * @throws Error if any feed doesn't belong to the user
  */
-export async function getFeedsToRefresh(feedIds: string[]): Promise<string[]> {
+export async function getFeedsToRefresh(
+  feedIds: string[],
+  userId: string,
+): Promise<string[]> {
+  // Validate that all feed IDs belong to the user
+  const validatedFeedIds = await validateFeedOwnership(feedIds, userId);
+
   const now = new Date();
   const cacheThreshold = new Date(now.getTime() - CACHE_WINDOW);
 
   // Get all requested feeds with their URLs
   const feeds = await prisma.rssFeed.findMany({
     where: {
-      id: { in: feedIds },
+      id: { in: validatedFeedIds },
+      userId, // Double-check ownership at database layer
     },
     select: {
       id: true,
@@ -88,21 +98,31 @@ export async function getFeedsToRefresh(feedIds: string[]): Promise<string[]> {
  * Prepares feeds and fetches articles for newsletter generation
  *
  * This is the main function called when generating a newsletter. It:
- * 1. Checks which feeds are stale (>3 hours old)
- * 2. Refreshes stale feeds by fetching new articles
- * 3. Retrieves articles from the database for the date range
+ * 1. Validates feed ownership for the user
+ * 2. Checks which feeds are stale (>3 hours old)
+ * 3. Refreshes stale feeds by fetching new articles
+ * 4. Retrieves articles from the database for the date range
  *
- * @param params - Feed IDs and date range for the newsletter
+ * @param params - User ID, feed IDs and date range for the newsletter
  * @returns Array of articles ready for newsletter generation
- * @throws Error if no articles found in the date range
+ * @throws Error if no articles found in the date range or unauthorized access
  */
 export async function prepareFeedsAndArticles(params: PrepareFeedsParams) {
+  // Validate feed ownership before proceeding
+  const validatedFeedIds = await validateFeedOwnership(
+    params.feedIds,
+    params.userId,
+  );
+
   // Check which feeds need refreshing (skips fresh feeds)
-  const feedsToRefresh = await getFeedsToRefresh(params.feedIds);
+  const feedsToRefresh = await getFeedsToRefresh(
+    validatedFeedIds,
+    params.userId,
+  );
 
   if (feedsToRefresh.length > 0) {
     console.log(
-      `Refreshing ${feedsToRefresh.length} stale feeds (out of ${params.feedIds.length} total)...`,
+      `Refreshing ${feedsToRefresh.length} stale feeds (out of ${validatedFeedIds.length} total)...`,
     );
 
     // Refresh all stale feeds in parallel for better performance
@@ -121,13 +141,14 @@ export async function prepareFeedsAndArticles(params: PrepareFeedsParams) {
     );
   } else {
     console.log(
-      `All ${params.feedIds.length} feeds are fresh (< 3 hours old), skipping refresh`,
+      `All ${validatedFeedIds.length} feeds are fresh (< 3 hours old), skipping refresh`,
     );
   }
 
   // Fetch articles from the database within the specified date range
+  // Use validated feed IDs to ensure we only get articles from user's feeds
   const articles = await getArticlesByFeedsAndDateRange(
-    params.feedIds,
+    validatedFeedIds,
     params.startDate,
     params.endDate,
     ARTICLE_LIMIT,

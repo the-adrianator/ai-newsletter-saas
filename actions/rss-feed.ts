@@ -41,6 +41,47 @@ export async function updateFeedLastFetched(feedId: string) {
 }
 
 /**
+ * Validates and filters feed IDs to ensure they belong to the specified user
+ * 
+ * @param feedIds - Array of feed IDs to validate
+ * @param userId - User ID to validate ownership against
+ * @returns Array of validated feed IDs that belong to the user
+ * @throws Error if any feed ID is invalid or doesn't belong to the user
+ */
+export async function validateFeedOwnership(
+  feedIds: string[],
+  userId: string,
+): Promise<string[]> {
+  return wrapDatabaseOperation(async () => {
+    // Fetch all feeds with the given IDs that belong to the user
+    const ownedFeeds = await prisma.rssFeed.findMany({
+      where: {
+        id: { in: feedIds },
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const ownedFeedIds = ownedFeeds.map((feed) => feed.id);
+
+    // Check if all requested feed IDs are owned by the user
+    const unauthorizedFeedIds = feedIds.filter(
+      (id) => !ownedFeedIds.includes(id),
+    );
+
+    if (unauthorizedFeedIds.length > 0) {
+      throw new Error(
+        `Unauthorized: You don't have access to the following feed(s): ${unauthorizedFeedIds.join(", ")}`,
+      );
+    }
+
+    return ownedFeedIds;
+  }, "validate feed ownership");
+}
+
+/**
  * Permanently deletes an RSS feed and cleans up articles not referenced by other feeds
  */
 export async function deleteRssFeed(feedId: string) {
