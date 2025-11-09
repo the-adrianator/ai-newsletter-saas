@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { getRssFeedsByUserId } from "@/actions/rss-feed";
 import { upsertUserFromClerk } from "@/actions/user";
 import { NewsletterForm } from "@/components/dashboard/NewsletterForm";
@@ -11,11 +12,11 @@ import {
 
 export async function NewsletterGenerator() {
   const { userId } = await auth();
-  
+
   if (!userId) {
     redirect("/sign-in");
   }
-  
+
   const user = await upsertUserFromClerk(userId);
   const feeds = await getRssFeedsByUserId(user.id);
 

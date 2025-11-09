@@ -64,7 +64,7 @@ export async function getNewslettersByUserId(
   },
 ) {
   return wrapDatabaseOperation(async () => {
-    return await prisma.newsletter.findMany({
+    const newsletters = await prisma.newsletter.findMany({
       where: {
         userId,
       },
@@ -74,6 +74,13 @@ export async function getNewslettersByUserId(
       take: options?.limit,
       skip: options?.skip,
     });
+
+    // Map to ensure correct field names (handles legacy data with typos)
+    return newsletters.map((newsletter) => ({
+      ...newsletter,
+      startDate: (newsletter as any).startDate || (newsletter as any).starteDate,
+      feedsUsed: (newsletter as any).feedsUsed || (newsletter as any).feedUsed || [],
+    }));
   }, "fetch newsletters by user");
 }
 
@@ -105,7 +112,12 @@ export async function getNewsletterById(id: string, userId: string) {
       throw new Error("Unauthorized: Newsletter does not belong to user");
     }
 
-    return newsletter;
+    // Map to ensure correct field names (handles legacy data with typos)
+    return {
+      ...newsletter,
+      startDate: (newsletter as any).startDate || (newsletter as any).starteDate,
+      feedsUsed: (newsletter as any).feedsUsed || (newsletter as any).feedUsed || [],
+    };
   }, "fetch newsletter by ID");
 }
 

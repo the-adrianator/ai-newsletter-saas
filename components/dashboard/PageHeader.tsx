@@ -13,7 +13,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="inline-flex size-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+      <div className="flex-shrink-0 inline-flex size-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white">
         <Icon className="size-6" />
       </div>
       <div>
