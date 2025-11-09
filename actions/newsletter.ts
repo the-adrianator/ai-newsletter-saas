@@ -1,7 +1,56 @@
 "use server";
 
+import type { Newsletter } from "@prisma/client";
 import { wrapDatabaseOperation } from "@/lib/database/error-handler";
 import { prisma } from "@/lib/prisma";
+
+// ============================================
+// TYPES FOR LEGACY DATA HANDLING
+// ============================================
+
+/**
+ * Raw newsletter data that may contain legacy field names (typos from older schema versions)
+ * Allows both current and legacy field names to be present
+ */
+type RawNewsletterData = Omit<Newsletter, "startDate" | "feedsUsed"> & {
+  startDate?: Date | string; // Current field name
+  starteDate?: Date | string; // Legacy typo of "startDate"
+  feedsUsed?: string[]; // Current field name
+  feedUsed?: string[]; // Legacy typo of "feedsUsed"
+};
+
+/**
+ * Normalized newsletter with corrected field names
+ */
+type NormalizedNewsletter = Omit<Newsletter, "startDate" | "feedsUsed"> & {
+  startDate: Date | string | null;
+  feedsUsed: string[];
+};
+
+/**
+ * Normalizes newsletter data by handling legacy field names
+ *
+ * This function safely reads from both current and legacy field names,
+ * providing proper fallbacks for backwards compatibility.
+ *
+ * @param raw - Raw newsletter data that may contain legacy fields
+ * @returns Normalized newsletter with correct field names
+ */
+function normalizeNewsletterFields(
+  raw: RawNewsletterData,
+): NormalizedNewsletter {
+  // Handle startDate: prefer current field, fall back to legacy typo, then null
+  const startDate = raw.startDate ?? raw.starteDate ?? null;
+
+  // Handle feedsUsed: prefer current field, fall back to legacy typo, then empty array
+  const feedsUsed = raw.feedsUsed ?? raw.feedUsed ?? [];
+
+  return {
+    ...raw,
+    startDate,
+    feedsUsed,
+  };
+}
 
 // ============================================
 // NEWSLETTER ACTIONS
@@ -75,12 +124,10 @@ export async function getNewslettersByUserId(
       skip: options?.skip,
     });
 
-    // Map to ensure correct field names (handles legacy data with typos)
-    return newsletters.map((newsletter) => ({
-      ...newsletter,
-      startDate: (newsletter as any).startDate || (newsletter as any).starteDate,
-      feedsUsed: (newsletter as any).feedsUsed || (newsletter as any).feedUsed || [],
-    }));
+    // Normalize field names to handle legacy data with typos
+    return newsletters.map((newsletter) =>
+      normalizeNewsletterFields(newsletter as RawNewsletterData),
+    );
   }, "fetch newsletters by user");
 }
 
@@ -112,12 +159,8 @@ export async function getNewsletterById(id: string, userId: string) {
       throw new Error("Unauthorized: Newsletter does not belong to user");
     }
 
-    // Map to ensure correct field names (handles legacy data with typos)
-    return {
-      ...newsletter,
-      startDate: (newsletter as any).startDate || (newsletter as any).starteDate,
-      feedsUsed: (newsletter as any).feedsUsed || (newsletter as any).feedUsed || [],
-    };
+    // Normalize field names to handle legacy data with typos
+    return normalizeNewsletterFields(newsletter as RawNewsletterData);
   }, "fetch newsletter by ID");
 }
 
