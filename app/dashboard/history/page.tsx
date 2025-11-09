@@ -37,7 +37,22 @@ export default async function HistoryPage() {
 
   const isPro = await has({ plan: "pro" });
   const user = await upsertUserFromClerk(userId);
-  const newsletters = isPro ? await getNewslettersByUserId(user.id) : [];
+  const rawNewsletters = isPro ? await getNewslettersByUserId(user.id) : [];
+
+  // Ensure dates are properly typed for the component
+  const newsletters = rawNewsletters.map((newsletter) => ({
+    ...newsletter,
+    startDate: newsletter.startDate
+      ? new Date(newsletter.startDate)
+      : new Date(),
+    endDate: newsletter.endDate ? new Date(newsletter.endDate) : new Date(),
+    createdAt: newsletter.createdAt
+      ? new Date(newsletter.createdAt)
+      : new Date(),
+    updatedAt: newsletter.updatedAt
+      ? new Date(newsletter.updatedAt)
+      : new Date(),
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-950">

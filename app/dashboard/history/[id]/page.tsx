@@ -65,5 +65,17 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  return <NewsletterHistoryView newsletter={newsletter} />;
+  // Ensure dates are properly typed for the component
+  const normalizedNewsletter = {
+    ...newsletter,
+    startDate: newsletter.startDate
+      ? new Date(newsletter.startDate)
+      : new Date(),
+    endDate: newsletter.endDate ? new Date(newsletter.endDate) : new Date(),
+    createdAt: newsletter.createdAt
+      ? new Date(newsletter.createdAt)
+      : new Date(),
+  };
+
+  return <NewsletterHistoryView newsletter={normalizedNewsletter} />;
 }
