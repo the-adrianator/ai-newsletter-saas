@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getArticlesByFeedsAndDateRange } from "@/actions/rss-article";
+import { validateFeedOwnership } from "@/actions/rss-feed";
 import { getCurrentUser } from "@/lib/auth/helpers";
 import { getFeedsToRefresh } from "@/lib/rss/feed-refresh";
 
@@ -33,34 +34,41 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify user authentication
-    const user = await getCurrentUser();
-    
-    // Verify user owns the requested feeds
-    const userFeeds = await prisma.rssFeed.findMany({
-      where: {
-        id: { in: feedIds },
-        userId: user.id,
-      },
-      select: { id: true },
-    });
-    
-    if (userFeeds.length !== feedIds.length) {
+    // Validate date strings can be parsed into valid Date objects
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
+
+    if (Number.isNaN(parsedStartDate.getTime())) {
       return Response.json(
-        { error: "Access denied to one or more feeds" },
-        { status: 403 },
+        { error: "startDate is not a valid date" },
+        { status: 400 },
       );
     }
 
+    if (Number.isNaN(parsedEndDate.getTime())) {
+      return Response.json(
+        { error: "endDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
+    // Verify user authentication
+    const user = await getCurrentUser();
+
+    // Validate that all feed IDs belong to the user
+    const validatedFeedIds = await validateFeedOwnership(feedIds, user.id);
+
     // Check which feeds need refreshing
-    const feedsToRefresh = await getFeedsToRefresh(feedIds);
+    const feedsToRefresh = await getFeedsToRefresh(validatedFeedIds, user.id);
 
     // Get article count without fetching full content
+    // Use validated feed IDs to ensure we only get articles from user's feeds
     const articles = await getArticlesByFeedsAndDateRange(
-      feedIds,
-      new Date(startDate),
-      new Date(endDate),
+      validatedFeedIds,
+      parsedStartDate,
+      parsedEndDate,
       100, // Same limit as generation
+      user.id,
     );
 
     return Response.json({

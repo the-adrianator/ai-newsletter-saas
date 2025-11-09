@@ -51,22 +51,41 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate date strings can be parsed into valid Date objects
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
+
+    if (Number.isNaN(parsedStartDate.getTime())) {
+      return Response.json(
+        { error: "startDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
+    if (Number.isNaN(parsedEndDate.getTime())) {
+      return Response.json(
+        { error: "endDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
     // Get authenticated user and settings
     const user = await getCurrentUser();
     const settings = await getUserSettingsByUserId(user.id);
 
-    // Fetch and prepare articles
+    // Fetch and prepare articles with ownership validation
     const articles = await prepareFeedsAndArticles({
+      userId: user.id,
       feedIds,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
     });
 
     // Build the AI prompt
     const articleSummaries = buildArticleSummaries(articles);
     const prompt = buildNewsletterPrompt({
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
       articleSummaries,
       articleCount: articles.length,
       userInput,

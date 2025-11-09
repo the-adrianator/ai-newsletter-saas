@@ -37,8 +37,8 @@ export async function validateAndAddFeed(userId: string, url: string) {
     try {
       const result = await fetchAndStoreFeed(feed.id);
 
-      // Update feed with metadata from RSS
-      await prisma.rssFeed.update({
+      // Update feed with metadata from RSS and capture the updated record
+      const updatedFeed = await prisma.rssFeed.update({
         where: { id: feed.id },
         data: {
           title: result.metadata.title,
@@ -50,7 +50,7 @@ export async function validateAndAddFeed(userId: string, url: string) {
       });
 
       return {
-        feed,
+        feed: updatedFeed,
         articlesCreated: result.created,
         articlesSkipped: result.skipped,
       };

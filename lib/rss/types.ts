@@ -57,6 +57,7 @@ export interface ArticleData {
  * Parameters for feed preparation
  */
 export interface PrepareFeedsParams {
+  userId: string;
   feedIds: string[];
   startDate: Date;
   endDate: Date;

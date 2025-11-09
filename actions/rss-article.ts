@@ -10,6 +10,7 @@ import {
 } from "@/lib/database/prisma-helpers";
 import { prisma } from "@/lib/prisma";
 import type { ArticleCreateData, BulkOperationResult } from "@/lib/rss/types";
+import { validateFeedOwnership } from "./rss-feed";
 
 // ============================================
 // RSS ARTICLE ACTIONS
@@ -97,21 +98,32 @@ export async function bulkCreateRssArticles(
 /**
  * Fetches articles by selected feeds and date range with importance scoring
  * Importance is calculated by the number of sources (sourceFeedIds length)
+ * 
+ * @param feedIds - Array of feed IDs to fetch articles from
+ * @param startDate - Start of date range
+ * @param endDate - End of date range
+ * @param limit - Maximum number of articles to return
+ * @param userId - User ID to validate feed ownership (required for security)
+ * @throws Error if any feed doesn't belong to the user
  */
 export async function getArticlesByFeedsAndDateRange(
   feedIds: string[],
   startDate: Date,
   endDate: Date,
   limit = 100,
+  userId: string,
 ) {
   return wrapDatabaseOperation(async () => {
+    // Validate that all feed IDs belong to the user
+    const validatedFeedIds = await validateFeedOwnership(feedIds, userId);
+
     const articles = await prisma.rssArticle.findMany({
       where: {
         OR: [
-          { feedId: { in: feedIds } },
+          { feedId: { in: validatedFeedIds } },
           {
             sourceFeedIds: {
-              hasSome: feedIds,
+              hasSome: validatedFeedIds,
             },
           },
         ],
