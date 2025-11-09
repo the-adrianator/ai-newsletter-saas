@@ -34,6 +34,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate date strings can be parsed into valid Date objects
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
+
+    if (Number.isNaN(parsedStartDate.getTime())) {
+      return Response.json(
+        { error: "startDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
+    if (Number.isNaN(parsedEndDate.getTime())) {
+      return Response.json(
+        { error: "endDate is not a valid date" },
+        { status: 400 },
+      );
+    }
+
     // Verify user authentication
     const user = await getCurrentUser();
 
@@ -47,8 +65,8 @@ export async function POST(req: NextRequest) {
     // Use validated feed IDs to ensure we only get articles from user's feeds
     const articles = await getArticlesByFeedsAndDateRange(
       validatedFeedIds,
-      new Date(startDate),
-      new Date(endDate),
+      parsedStartDate,
+      parsedEndDate,
       100, // Same limit as generation
       user.id,
     );
