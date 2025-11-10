@@ -1,22 +1,22 @@
-import { Suspense } from "react";
+import { auth } from "@clerk/nextjs/server";
 import { Home } from "lucide-react";
-import { NewsletterGenerator } from "@/components/dashboard/NewsletterGenerator";
+import { getRssFeedsByUserId } from "@/actions/rss-feed";
+import { upsertUserFromClerk } from "@/actions/user";
+import { NewsletterGeneratorClient } from "@/components/dashboard/NewsletterGeneratorClient";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { RssFeedManager } from "@/components/dashboard/RSSFeedManager";
-import { Card, CardContent } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-
-function LoadingCard() {
-  return (
-    <Card className="transition-all hover:shadow-lg">
-      <CardContent className="flex items-center justify-center py-12">
-        <Spinner />
-      </CardContent>
-    </Card>
-  );
-}
+import { RssFeedManagerClient } from "@/components/dashboard/RSSFeedManagerClient";
 
 export default async function Dashboard() {
+  const { userId, has } = await auth();
+  
+  if (!userId) {
+    return null;
+  }
+
+  const isPro = await has({ plan: "pro" });
+  const user = await upsertUserFromClerk(userId);
+  const feeds = await getRssFeedsByUserId(user.id);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-950">
       <div className="container mx-auto px-6 py-12 lg:px-8 space-y-12">
@@ -30,14 +30,10 @@ export default async function Dashboard() {
         {/* Main Content - Two column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - RSS Feed Manager */}
-          <Suspense fallback={<LoadingCard />}>
-            <RssFeedManager />
-          </Suspense>
+          <RssFeedManagerClient feeds={feeds} isPro={isPro} />
 
           {/* Right Column - Newsletter Generator */}
-          <Suspense fallback={<LoadingCard />}>
-            <NewsletterGenerator />
-          </Suspense>
+          <NewsletterGeneratorClient feeds={feeds} />
         </div>
       </div>
     </div>
