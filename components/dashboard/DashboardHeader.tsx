@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SignOutButton } from "@clerk/nextjs";
 import { History, Home, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
@@ -10,6 +11,11 @@ import { cn } from "@/lib/utils";
 
 export function DashboardHeader() {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const navItems = [
     {
@@ -50,11 +56,12 @@ export function DashboardHeader() {
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const isActive =
-                  pathname === item.href ||
-                  (item.href === "/dashboard/history" &&
-                    pathname.startsWith("/dashboard/history")) ||
-                  (item.href === "/dashboard/account" &&
-                    pathname.startsWith("/dashboard/account"));
+                  isMounted &&
+                  (pathname === item.href ||
+                    (item.href === "/dashboard/history" &&
+                      pathname.startsWith("/dashboard/history")) ||
+                    (item.href === "/dashboard/account" &&
+                      pathname.startsWith("/dashboard/account")));
                 const Icon = item.icon;
 
                 return (
@@ -93,11 +100,12 @@ export function DashboardHeader() {
         <nav className="md:hidden flex items-center gap-1 pb-3">
           {navItems.map((item) => {
             const isActive =
-              pathname === item.href ||
-              (item.href === "/dashboard/history" &&
-                pathname.startsWith("/dashboard/history")) ||
-              (item.href === "/dashboard/account" &&
-                pathname.startsWith("/dashboard/account"));
+              isMounted &&
+              (pathname === item.href ||
+                (item.href === "/dashboard/history" &&
+                  pathname.startsWith("/dashboard/history")) ||
+                (item.href === "/dashboard/account" &&
+                  pathname.startsWith("/dashboard/account")));
             const Icon = item.icon;
 
             return (
