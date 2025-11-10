@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "AI Newsletter is a platform for creating and managing your newsletter.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
