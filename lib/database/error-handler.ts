@@ -60,6 +60,16 @@ export function handlePrismaError(
  */
 export function handleDatabaseError(error: unknown, operation: string): never {
   console.error(`Failed to ${operation}:`, error);
+  
+  // Enhanced logging for production debugging
+  if (error instanceof Error) {
+    console.error("Error details:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      cause: error.cause,
+    });
+  }
 
   if (isPrismaError(error)) {
     throw handlePrismaError(error, `Failed to ${operation}`);
