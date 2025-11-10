@@ -1,6 +1,6 @@
-import { UserProfile } from "@clerk/nextjs";
 import { User } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { ClerkUserProfile } from "@/components/providers/ClerkUserProfile";
 
 export default function AccountPage() {
   return (
@@ -12,20 +12,7 @@ export default function AccountPage() {
           description="Manage your account settings and profile information"
         />
 
-        <UserProfile
-          routing="hash"
-          appearance={{
-            elements: {
-              rootBox: {
-                width: "100%",
-              },
-              card: {
-                boxShadow: "none",
-                border: "1px solid hsl(var(--border))",
-              },
-            },
-          }}
-        />
+        <ClerkUserProfile />
       </div>
     </div>
   );

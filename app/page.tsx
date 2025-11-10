@@ -1,9 +1,9 @@
-import { SignedIn, UserButton } from "@clerk/nextjs";
 import { CTA } from "@/components/landing/CTA";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Pricing } from "@/components/landing/Pricing";
+import { ClerkUserButton } from "@/components/providers/ClerkUserButton";
 
 export default function Home() {
   return (
@@ -12,11 +12,7 @@ export default function Home() {
       <Features />
       <HowItWorks />
 
-      <SignedIn>
-        <div className="fixed top-4 right-4">
-          <UserButton />
-        </div>
-      </SignedIn>
+      <ClerkUserButton />
 
       <Pricing />
       <CTA />
