@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import CTAButtons from "./buttons/CTAButtons";
+import { CTAButtonsClient } from "./buttons/CTAButtonsClient";
 
 export function CTA() {
   return (
@@ -18,7 +18,7 @@ export function CTA() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <CTAButtons />
+            <CTAButtonsClient />
           </div>
 
           {/* Trust signals */}

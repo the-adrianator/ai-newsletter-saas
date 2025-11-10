@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowRight, Rss, Sparkles } from "lucide-react";
-import CTAButtons from "@/components/landing/buttons/CTAButtons";
+import { CTAButtonsClient } from "@/components/landing/buttons/CTAButtonsClient";
 import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
@@ -33,7 +33,7 @@ export function Hero() {
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <CTAButtons />
+            <CTAButtonsClient />
           </div>
 
           {/* Social Proof */}
