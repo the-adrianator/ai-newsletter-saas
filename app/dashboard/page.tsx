@@ -8,7 +8,7 @@ import { RssFeedManagerClient } from "@/components/dashboard/RSSFeedManagerClien
 
 export default async function Dashboard() {
   const { userId, has } = await auth();
-  
+
   if (!userId) {
     return null;
   }

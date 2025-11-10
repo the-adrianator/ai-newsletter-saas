@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProviderWrapper } from "@/components/providers/ClerkProviderWrapper";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
     "AI Newsletter is a platform for creating and managing your newsletter.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProviderWrapper>
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -35,6 +35,6 @@ export default async function RootLayout({
           <Toaster />
         </body>
       </html>
-    </ClerkProvider>
+    </ClerkProviderWrapper>
   );
 }
