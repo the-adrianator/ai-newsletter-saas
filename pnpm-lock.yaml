@@ -16,7 +16,7 @@ dependencies:
     version: 5.7.4(next@16.0.0)(react-dom@19.2.0)(react@19.2.0)
   '@prisma/client':
     specifier: ^6.18.0
-    version: 6.18.0(prisma@6.18.0)(typescript@5.0.2)
+    version: 6.18.0(prisma@6.18.0)(typescript@5.6.2)
   '@prisma/extension-accelerate':
     specifier: ^2.0.2
     version: 2.0.2(@prisma/client@6.18.0)
@@ -114,10 +114,10 @@ devDependencies:
     version: 1.0.0
   prisma:
     specifier: ^6.18.0
-    version: 6.18.0(typescript@5.0.2)
+    version: 6.18.0(typescript@5.6.2)
   shadcn:
     specifier: ^3.5.0
-    version: 3.5.0(@types/node@20.0.0)(typescript@5.0.2)
+    version: 3.5.0(@types/node@20.0.0)(typescript@5.6.2)
   tailwindcss:
     specifier: ^4.1.17
     version: 4.1.17
@@ -128,8 +128,8 @@ devDependencies:
     specifier: ^1.4.0
     version: 1.4.0
   typescript:
-    specifier: ^5
-    version: 5.0.2
+    specifier: ^5.6.2
+    version: 5.6.2
 
 packages:
 
@@ -1477,7 +1477,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: false
 
-  /@prisma/client@6.18.0(prisma@6.18.0)(typescript@5.0.2):
+  /@prisma/client@6.18.0(prisma@6.18.0)(typescript@5.6.2):
     resolution: {integrity: sha512-jnL2I9gDnPnw4A+4h5SuNn8Gc+1mL1Z79U/3I9eE2gbxJG1oSA+62ByPW4xkeDgwE0fqMzzpAZ7IHxYnLZ4iQA==}
     engines: {node: '>=18.18'}
     requiresBuild: true
@@ -1490,8 +1490,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      prisma: 6.18.0(typescript@5.0.2)
-      typescript: 5.0.2
+      prisma: 6.18.0(typescript@5.6.2)
+      typescript: 5.6.2
     dev: false
 
   /@prisma/config@6.18.0:
@@ -1525,7 +1525,7 @@ packages:
     peerDependencies:
       '@prisma/client': '>=4.16.1'
     dependencies:
-      '@prisma/client': 6.18.0(prisma@6.18.0)(typescript@5.0.2)
+      '@prisma/client': 6.18.0(prisma@6.18.0)(typescript@5.6.2)
     dev: false
 
   /@prisma/fetch-engine@6.18.0:
@@ -2707,7 +2707,7 @@ packages:
       vary: 1.1.2
     dev: true
 
-  /cosmiconfig@9.0.0(typescript@5.0.2):
+  /cosmiconfig@9.0.0(typescript@5.6.2):
     resolution: {integrity: sha512-itvL5h8RETACmOTFc4UfIyB2RfEHi71Ax6E/PivVxq9NseKbOWpeyHEOIbmAw1rs8Ak0VursQNww7lf7YtUwzg==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -2720,7 +2720,7 @@ packages:
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
-      typescript: 5.0.2
+      typescript: 5.6.2
     dev: true
 
   /cross-spawn@7.0.6:
@@ -4150,7 +4150,7 @@ packages:
   /ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  /msw@2.12.0(@types/node@20.0.0)(typescript@5.0.2):
+  /msw@2.12.0(@types/node@20.0.0)(typescript@5.6.2):
     resolution: {integrity: sha512-jzf2eVnd8+iWXN74dccLrHUw3i3hFVvNVQRWS4vBl2KxaUt7Tdur0Eyda/DODGFkZDu2P5MXaeLe/9Qx8PZkrg==}
     engines: {node: '>=18'}
     hasBin: true
@@ -4177,7 +4177,7 @@ packages:
       strict-event-emitter: 0.5.1
       tough-cookie: 6.0.0
       type-fest: 4.41.0
-      typescript: 5.0.2
+      typescript: 5.6.2
       until-async: 3.0.2
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -4500,7 +4500,7 @@ packages:
       parse-ms: 4.0.0
     dev: true
 
-  /prisma@6.18.0(typescript@5.0.2):
+  /prisma@6.18.0(typescript@5.6.2):
     resolution: {integrity: sha512-bXWy3vTk8mnRmT+SLyZBQoC2vtV9Z8u7OHvEu+aULYxwiop/CPiFZ+F56KsNRNf35jw+8wcu8pmLsjxpBxAO9g==}
     engines: {node: '>=18.18'}
     hasBin: true
@@ -4513,7 +4513,7 @@ packages:
     dependencies:
       '@prisma/config': 6.18.0
       '@prisma/engines': 6.18.0
-      typescript: 5.0.2
+      typescript: 5.6.2
     transitivePeerDependencies:
       - magicast
 
@@ -4846,7 +4846,7 @@ packages:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
     dev: true
 
-  /shadcn@3.5.0(@types/node@20.0.0)(typescript@5.0.2):
+  /shadcn@3.5.0(@types/node@20.0.0)(typescript@5.6.2):
     resolution: {integrity: sha512-5f9tn7gHOiI8CqJ8LGrUEmX6dOivGgSbHkMCeOMCzxHZy9cPwyuRXt7ZyjwukO8QH9kGqi6oiKOpfvTXNGBP4g==}
     hasBin: true
     dependencies:
@@ -4859,7 +4859,7 @@ packages:
       '@modelcontextprotocol/sdk': 1.21.0
       browserslist: 4.27.0
       commander: 14.0.2
-      cosmiconfig: 9.0.0(typescript@5.0.2)
+      cosmiconfig: 9.0.0(typescript@5.6.2)
       dedent: 1.7.0
       deepmerge: 4.3.1
       diff: 8.0.2
@@ -4869,7 +4869,7 @@ packages:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6
       kleur: 4.1.5
-      msw: 2.12.0(@types/node@20.0.0)(typescript@5.0.2)
+      msw: 2.12.0(@types/node@20.0.0)(typescript@5.6.2)
       node-fetch: 3.3.2
       ora: 8.2.0
       postcss: 8.5.6
@@ -5288,9 +5288,9 @@ packages:
       mime-types: 3.0.1
     dev: true
 
-  /typescript@5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
-    engines: {node: '>=12.20'}
+  /typescript@5.6.2:
+    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+    engines: {node: '>=14.17'}
     hasBin: true
 
   /unicorn-magic@0.3.0:
