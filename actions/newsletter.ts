@@ -23,7 +23,7 @@ interface NewsletterWithLegacyFields {
  * Normalized newsletter with corrected field names
  */
 type NormalizedNewsletter = Omit<Newsletter, "startDate" | "feedsUsed"> & {
-  startDate: Date | string | null;
+  startDate: Date;
   feedsUsed: string[];
 };
 
@@ -45,11 +45,28 @@ function hasLegacyFields(obj: unknown): obj is NewsletterWithLegacyFields {
 }
 
 /**
+ * Converts a value to a Date object
+ * 
+ * @param value - Date, string, or null value
+ * @returns Date object
+ */
+function toDate(value: Date | string | null | undefined): Date {
+  if (!value) {
+    return new Date(); // Default to current date if null/undefined
+  }
+  if (value instanceof Date) {
+    return value;
+  }
+  return new Date(value);
+}
+
+/**
  * Normalizes newsletter data by handling legacy field names
  *
  * This function safely reads from both current and legacy field names,
  * providing proper fallbacks for backwards compatibility. It uses
  * optional chaining and nullish coalescing to avoid unsafe type casts.
+ * All date fields are converted to Date objects.
  *
  * @param raw - Newsletter data from Prisma that may contain legacy fields
  * @returns Normalized newsletter with correct field names and proper defaults
@@ -58,12 +75,13 @@ function normalizeNewsletterFields(raw: Newsletter): NormalizedNewsletter {
   // Cast to unknown first, then use type guard for safe narrowing
   const possiblyLegacy = raw as unknown;
 
-  let startDate: Date | string | null = null;
+  let startDate: Date = toDate(raw.startDate);
   let feedsUsed: string[] = [];
 
   if (hasLegacyFields(possiblyLegacy)) {
-    // Handle startDate: prefer current field, fall back to legacy typo, then null
-    startDate = possiblyLegacy.startDate ?? possiblyLegacy.starteDate ?? null;
+    // Handle startDate: prefer current field, fall back to legacy typo, then current date
+    const rawStartDate = possiblyLegacy.startDate ?? possiblyLegacy.starteDate;
+    startDate = toDate(rawStartDate);
 
     // Handle feedsUsed: prefer current field, fall back to legacy typo, then empty array
     feedsUsed = possiblyLegacy.feedsUsed ?? possiblyLegacy.feedUsed ?? [];
@@ -72,6 +90,9 @@ function normalizeNewsletterFields(raw: Newsletter): NormalizedNewsletter {
   return {
     ...raw,
     startDate,
+    endDate: toDate(raw.endDate),
+    createdAt: toDate(raw.createdAt),
+    updatedAt: toDate(raw.updatedAt),
     feedsUsed,
   };
 }
