@@ -31,9 +31,13 @@ export default async function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Dashboard
+          </h1>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            {error instanceof Error ? error.message : "An unknown error occurred"}
+            {error instanceof Error
+              ? error.message
+              : "An unknown error occurred"}
           </p>
           <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto">
             {error instanceof Error ? error.stack : String(error)}
