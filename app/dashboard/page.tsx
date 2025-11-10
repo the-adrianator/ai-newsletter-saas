@@ -1,7 +1,20 @@
+import { Suspense } from "react";
 import { Home } from "lucide-react";
 import { NewsletterGenerator } from "@/components/dashboard/NewsletterGenerator";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { RssFeedManager } from "@/components/dashboard/RSSFeedManager";
+import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+
+function LoadingCard() {
+  return (
+    <Card className="transition-all hover:shadow-lg">
+      <CardContent className="flex items-center justify-center py-12">
+        <Spinner />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default async function Dashboard() {
   return (
@@ -17,10 +30,14 @@ export default async function Dashboard() {
         {/* Main Content - Two column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - RSS Feed Manager */}
-          <RssFeedManager />
+          <Suspense fallback={<LoadingCard />}>
+            <RssFeedManager />
+          </Suspense>
 
           {/* Right Column - Newsletter Generator */}
-          <NewsletterGenerator />
+          <Suspense fallback={<LoadingCard />}>
+            <NewsletterGenerator />
+          </Suspense>
         </div>
       </div>
     </div>
